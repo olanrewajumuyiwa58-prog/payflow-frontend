@@ -14,6 +14,7 @@ import {
 } from "react";
 import type { StellarWalletsKit } from "@creit.tech/stellar-wallets-kit";
 import { config } from "./config";
+import { detectMissingWallet } from "./wallet-detect";
 import { createWalletModules } from "./wallet-modules";
 import type { SignXdr } from "./payflow";
 import {
@@ -167,7 +168,11 @@ export interface WalletState {
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   /** Re-establishes the active wallet session without a full reload. */
-  reconnect?: () => Promise<void>;
+  reconnect: () => Promise<void>;
+  /** The wallet id a returning visitor would be reconnected with, if any. */
+  rememberedWalletId: string | null;
+  /** True when the last connect found no browser-extension wallet installed. */
+  noWallet: boolean;
   /** Re-reads the native balance. Safe to call after any transaction. */
   refreshAccount: () => Promise<void>;
   /** Creates and funds the account with Friendbot. Testnet only. */
@@ -222,6 +227,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [walletNetwork, setWalletNetwork] = useState<string | null>(null);
   const [account, setAccount] = useState<AccountState>({ state: "loading" });
   const [funding, setFunding] = useState(false);
+  const [noWallet, setNoWallet] = useState(false);
+  const [rememberedWalletId, setRememberedWalletId] = useState<string | null>(null);
   const activeWalletIdRef = useRef<string | null>(null);
   const [signingDescription, setSigningDescription] = useState<string | null>(null);
   const signingDecisionRef = useRef<{
@@ -374,6 +381,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setReconnectError(RECONNECT_DISCONNECTED_ERROR);
         return;
       }
+      setRememberedWalletId(session.walletId || null);
       if (addressRef.current && shouldUpdateAddress(addressRef.current, detected)) {
         applyAccountChange(detected);
       } else if (!addressRef.current) {
@@ -487,11 +495,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setLocked(false);
     try {
       const kit = await getKit();
+      // Probe only when the visitor actually tries to connect: claiming a
+      // wallet is missing on page load would be a guess, and a failed probe is
+      // never a reason to show an install prompt.
+      setNoWallet(await detectMissingWallet(kit));
       await kit.openModal({
         onWalletSelected: async (option) => {
           try {
             kit.setWallet(option.id);
             activeWalletIdRef.current = option.id;
+            setRememberedWalletId(option.id);
+            setNoWallet(false);
             const { address: selected } = await kit.getAddress();
             addressRef.current = selected;
             setAddress(selected);
@@ -536,6 +550,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     // outlive it. The provider is also unbound by the account effect below.
     clearMerchantSession();
     activeWalletIdRef.current = null;
+    setRememberedWalletId(null);
     addressRef.current = null;
     setAddress(null);
     setWalletNetwork(null);
@@ -694,6 +709,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       connect,
       disconnect,
       reconnect,
+      rememberedWalletId,
+      noWallet,
       refreshAccount,
       fund,
       signXdr,
@@ -715,6 +732,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       connect,
       disconnect,
       reconnect,
+      rememberedWalletId,
+      noWallet,
       refreshAccount,
       fund,
       signXdr,

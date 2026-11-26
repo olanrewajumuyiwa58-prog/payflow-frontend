@@ -100,14 +100,14 @@ describe("PlanPageClient recent charges table", () => {
     const netCell = screen.getByText("1.99 XLM").closest("td");
 
     for (const cell of [amountCell, feeCell, netCell].filter(Boolean) as HTMLElement[]) {
-      expect(cell.className).toContain("text-right");
+      expect(cell.className).toContain("text-end");
       expect(cell.className).toContain("font-mono");
       expect(cell.className).toContain("tabular-nums");
     }
 
-    expect(screen.getByText("Amount").closest("th")?.className).toContain("text-right");
-    expect(screen.getByText("Fee").closest("th")?.className).toContain("text-right");
-    expect(screen.getByText("Net").closest("th")?.className).toContain("text-right");
+    expect(screen.getByText("Amount").closest("th")?.className).toContain("text-end");
+    expect(screen.getByText("Fee").closest("th")?.className).toContain("text-end");
+    expect(screen.getByText("Net").closest("th")?.className).toContain("text-end");
 
     // Non-monetary columns are not monospaced.
     const mandateCell = screen.getByText("1").closest("td");

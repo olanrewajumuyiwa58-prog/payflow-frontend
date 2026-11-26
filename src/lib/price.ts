@@ -45,6 +45,20 @@ export function getReflectorOracleId(): string {
 export function clearPriceCache(): void {
   cachedPrice = null;
   inflightFetch = null;
+  cachedRpcClient = null;
+}
+
+let cachedRpcClient: { url: string; client: unknown } | null = null;
+
+/**
+ * Reuse one RPC server per endpoint instead of building a new one on every
+ * oracle read; a configuration change (a different URL) replaces it.
+ */
+export function getRpcClient<T>(rpcUrl: string, create: (url: string) => T): T {
+  if (cachedRpcClient?.url === rpcUrl) return cachedRpcClient.client as T;
+  const client = create(rpcUrl);
+  cachedRpcClient = { url: rpcUrl, client };
+  return client;
 }
 
 /**
@@ -82,7 +96,7 @@ export async function fetchXlmUsdPrice(options?: {
       const { Account, Contract, TransactionBuilder, rpc, scValToNative, xdr } =
         await import("@stellar/stellar-sdk");
 
-      const server = new rpc.Server(rpcUrl);
+      const server = getRpcClient(rpcUrl, (url) => new rpc.Server(url));
       const contract = new Contract(oracleId);
 
       // 1. Query decimals()

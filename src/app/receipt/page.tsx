@@ -289,8 +289,7 @@ function ReceiptContent() {
               <tr>
                 <td className="py-2.5 text-muted print:text-slate-700">{tr("Subscription charge (Mandate #")}{receipt.mandateId})
                 </td>
-                <td className="py-2.5 text-end font-mono text-slate-200 print:text-black tabular-nums">
-                <td className="py-2.5 text-right font-mono text-soft print:text-black tabular-nums">
+                <td className="py-2.5 text-end font-mono text-soft print:text-black tabular-nums">
                   {grossFormatted}
                 </td>
               </tr>

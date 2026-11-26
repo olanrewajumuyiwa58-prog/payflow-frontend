@@ -15,6 +15,7 @@ import { config } from "@/lib/config";
 import { payflow } from "@/lib/lazy-payflow";
 import { useWallet } from "@/lib/wallet";
 
+import { AddressDisplay } from "@/components/AddressDisplay";
 import { AddressLink, Badge, Empty, Notice, Panel, SkeletonPlanDetail, TxLink } from "@/components/ui";
 import { cursorPage, TABLE_PAGE_SIZE } from "@/lib/pagination";
 
@@ -236,14 +237,10 @@ export function PlanPageClient({ planId }: PlanPageClientProps) {
                     <td className="py-2">
                       <AddressDisplay value={c.subscriber} />
                     </td>
-                    <td className="py-2 text-end">{c.amount}{" "}{tr("XLM")}</td>
-                    <td className="py-2 text-end">{c.fee}{" "}{tr("XLM")}</td>
-                    <td className="py-2 text-end">{c.net}{" "}{tr("XLM")}</td>
+                    <td className="py-2 text-end font-mono tabular-nums">{c.amount}{" "}{tr("XLM")}</td>
+                    <td className="py-2 text-end font-mono tabular-nums">{c.fee}{" "}{tr("XLM")}</td>
+                    <td className="py-2 text-end font-mono tabular-nums">{c.net}{" "}{tr("XLM")}</td>
                     <td className="py-2 text-end">
-                    <td className="py-2 text-right font-mono tabular-nums">{c.amount}{" "}{tr("XLM")}</td>
-                    <td className="py-2 text-right font-mono tabular-nums">{c.fee}{" "}{tr("XLM")}</td>
-                    <td className="py-2 text-right font-mono tabular-nums">{c.net}{" "}{tr("XLM")}</td>
-                    <td className="py-2 text-right">
                       <TxLink hash={c.txHash} />
                     </td>
                   </tr>

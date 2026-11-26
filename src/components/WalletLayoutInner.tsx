@@ -219,6 +219,8 @@ export function WalletLayoutInner({ children }: { children: React.ReactNode }) {
           <NetworkMismatchBanner
             walletNetwork={walletNetwork}
             expectedNetwork={network.networkPassphrase}
+            expectedNetworkLabel={network.label}
+            status={walletNetwork === null ? "unknown" : "mismatch"}
           />
         </div>
       )}

@@ -491,12 +491,9 @@ function MandateDetailsInner() {
                 <tr>
                   <th className="py-2 pe-4">{tr("Ledger")}</th>
                   <th className="py-2 px-4">{tr("Charge #")}</th>
-                  <th className="py-2 px-4">{tr("Amount")}</th>
-                  <th className="py-2 px-4">{tr("Fee")}</th>
-                  <th className="py-2 ps-4">{tr("Transaction")}</th>
                   <th className="py-2 px-4 text-right">{tr("Amount")}</th>
                   <th className="py-2 px-4 text-right">{tr("Fee")}</th>
-                  <th className="py-2 pl-4">{tr("Transaction")}</th>
+                  <th className="py-2 ps-4">{tr("Transaction")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-edge">

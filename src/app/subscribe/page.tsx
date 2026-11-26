@@ -828,6 +828,9 @@ function SubscribeInner() {
                 const selectedForCompare = compareIds.includes(plan.id);
                 const stats = planStats[plan.id];
                 const statsLoading = !(plan.id in planStats);
+                const cap = checkChargeLimit(maxCharges[plan.id]);
+                const currentBal = vaultBalances[plan.token] ?? 0n;
+                const funded = currentBal >= BigInt(plan.amount);
                 return (
                   <Panel
                     key={plan.id}

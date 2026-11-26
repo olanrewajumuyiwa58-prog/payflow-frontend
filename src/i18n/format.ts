@@ -13,13 +13,42 @@ export const localeTag = (locale: Locale) =>
 export const isRtlLocale = (locale: Locale) => locale === "ar";
 export const direction = (locale: Locale): "ltr" | "rtl" => isRtlLocale(locale) ? "rtl" : "ltr";
 
+const numberFormatters = new Map<Locale, Intl.NumberFormat>();
+
+/**
+ * One number formatter per locale, created once: Intl formatters are costly to
+ * build and a page formats many figures. Keyed by locale so en and fr never
+ * share one.
+ */
+export function numberFormatterFor(locale: Locale): Intl.NumberFormat {
+  let formatter = numberFormatters.get(locale);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(localeTag(locale));
+    numberFormatters.set(locale, formatter);
+  }
+  return formatter;
+}
+
 export function formatNumber(value: number | bigint, locale: Locale): string {
-  return new Intl.NumberFormat(localeTag(locale)).format(value);
+  return numberFormatterFor(locale).format(value);
+}
+
+/** "14 days", "1 hour": a whole duration in the locale's own unit words. */
+export function formatUnit(
+  count: number,
+  unit: "day" | "hour" | "minute" | "second",
+  locale: Locale,
+): string {
+  return new Intl.NumberFormat(localeTag(locale), {
+    style: "unit",
+    unit,
+    unitDisplay: "long",
+  }).format(count);
 }
 
 /** The decimal mark the locale uses, read from Intl rather than hard-coded. */
 export function decimalSeparator(locale: Locale): string {
-  return new Intl.NumberFormat(localeTag(locale)).formatToParts(1.1).find(part => part.type === "decimal")?.value ?? ".";
+  return numberFormatterFor(locale).formatToParts(1.1).find(part => part.type === "decimal")?.value ?? ".";
 }
 
 /** Format an exact canonical decimal string without ever coercing it to Number. */
